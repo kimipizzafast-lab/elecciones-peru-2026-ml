@@ -1,0 +1,573 @@
+{
+  "n_distritos": 1890,
+  "n_formulas": 35,
+  "conteo_ganadores": {
+    "JUNTOS_POR_EL_PERÚ": 1107,
+    "FUERZA_POPULAR": 583,
+    "AHORA_NACIÓN_-_AN": 74,
+    "PARTIDO_CÍVICO_OBRAS": 51,
+    "RENOVACIÓN_POPULAR": 36,
+    "PARTIDO_DEL_BUEN_GOBIERNO": 18,
+    "PARTIDO_DEMOCRÁTICO_SOMOS_PERÚ": 5,
+    "ALIANZA_PARA_EL_PROGRESO": 4,
+    "ALIANZA_ELECTORAL_VENCEREMOS": 2,
+    "UN_CAMINO_DIFERENTE": 2,
+    "PARTIDO_PAÍS_PARA_TODOS": 2,
+    "PARTIDO_POLÍTICO_COOPERACIÓN_POPULAR": 2,
+    "PARTIDO_POLÍTICO_PERÚ_PRIMERO": 2,
+    "PARTIDO_POLÍTICO_NACIONAL_PERÚ_LIBRE": 1,
+    "PODEMOS_PERÚ": 1
+  },
+  "empates": [
+    {
+      "DEPARTAMENTO": "Amazonas",
+      "PROVINCIA": "Rodriguez De Mendoza",
+      "DISTRITO": "Limabamba",
+      "UBIGEO_RENIEC": 10505
+    },
+    {
+      "DEPARTAMENTO": "Ancash",
+      "PROVINCIA": "Asuncion",
+      "DISTRITO": "Chacas",
+      "UBIGEO_RENIEC": 21801
+    },
+    {
+      "DEPARTAMENTO": "Junin",
+      "PROVINCIA": "Huancayo",
+      "DISTRITO": "Ingenio",
+      "UBIGEO_RENIEC": 110121
+    },
+    {
+      "DEPARTAMENTO": "Loreto",
+      "PROVINCIA": "Ucayali",
+      "DISTRITO": "Padre Marquez",
+      "UBIGEO_RENIEC": 150503
+    },
+    {
+      "DEPARTAMENTO": "Puno",
+      "PROVINCIA": "Carabaya",
+      "DISTRITO": "Ajoyani",
+      "UBIGEO_RENIEC": 200302
+    }
+  ],
+  "tabla_modelos": [
+    {
+      "esquema": "Esquema A (35 vars crudas)",
+      "algoritmo": "K-Means",
+      "k": 2,
+      "silhouette": 0.1409,
+      "calinski_harabasz": 208.39,
+      "davies_bouldin": 2.5742,
+      "tamanos": [
+        699,
+        1191
+      ]
+    },
+    {
+      "esquema": "Esquema A (35 vars crudas)",
+      "algoritmo": "K-Means",
+      "k": 3,
+      "silhouette": 0.115,
+      "calinski_harabasz": 169.72,
+      "davies_bouldin": 2.445,
+      "tamanos": [
+        917,
+        531,
+        442
+      ]
+    },
+    {
+      "esquema": "Esquema A (35 vars crudas)",
+      "algoritmo": "K-Means",
+      "k": 4,
+      "silhouette": 0.1023,
+      "calinski_harabasz": 144.94,
+      "davies_bouldin": 2.6841,
+      "tamanos": [
+        423,
+        669,
+        321,
+        477
+      ]
+    },
+    {
+      "esquema": "Esquema A (35 vars crudas)",
+      "algoritmo": "K-Means",
+      "k": 5,
+      "silhouette": 0.1016,
+      "calinski_harabasz": 130.32,
+      "davies_bouldin": 2.3997,
+      "tamanos": [
+        715,
+        63,
+        525,
+        210,
+        377
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Means",
+      "k": 2,
+      "silhouette": 0.2841,
+      "calinski_harabasz": 824.39,
+      "davies_bouldin": 1.3214,
+      "tamanos": [
+        1100,
+        790
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Means",
+      "k": 3,
+      "silhouette": 0.265,
+      "calinski_harabasz": 702.34,
+      "davies_bouldin": 1.4868,
+      "tamanos": [
+        614,
+        604,
+        672
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Means",
+      "k": 4,
+      "silhouette": 0.2631,
+      "calinski_harabasz": 685.31,
+      "davies_bouldin": 1.2969,
+      "tamanos": [
+        525,
+        387,
+        482,
+        496
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Means",
+      "k": 5,
+      "silhouette": 0.2654,
+      "calinski_harabasz": 657.23,
+      "davies_bouldin": 1.1882,
+      "tamanos": [
+        457,
+        45,
+        506,
+        418,
+        464
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Medoids (PAM)",
+      "k": 2,
+      "silhouette": 0.2825,
+      "calinski_harabasz": 805.99,
+      "davies_bouldin": 1.388,
+      "tamanos": [
+        926,
+        964
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Medoids (PAM)",
+      "k": 3,
+      "silhouette": 0.2408,
+      "calinski_harabasz": 635.74,
+      "davies_bouldin": 1.4133,
+      "tamanos": [
+        837,
+        694,
+        359
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Medoids (PAM)",
+      "k": 4,
+      "silhouette": 0.2345,
+      "calinski_harabasz": 640.64,
+      "davies_bouldin": 1.3343,
+      "tamanos": [
+        564,
+        587,
+        346,
+        393
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "K-Medoids (PAM)",
+      "k": 5,
+      "silhouette": 0.2155,
+      "calinski_harabasz": 572.29,
+      "davies_bouldin": 1.5336,
+      "tamanos": [
+        455,
+        352,
+        319,
+        441,
+        323
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "HAC (Ward)",
+      "k": 2,
+      "silhouette": 0.2684,
+      "calinski_harabasz": 769.24,
+      "davies_bouldin": 1.2762,
+      "tamanos": [
+        1219,
+        671
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "HAC (Ward)",
+      "k": 3,
+      "silhouette": 0.2309,
+      "calinski_harabasz": 616.18,
+      "davies_bouldin": 1.4575,
+      "tamanos": [
+        894,
+        671,
+        325
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "HAC (Ward)",
+      "k": 4,
+      "silhouette": 0.2425,
+      "calinski_harabasz": 601.13,
+      "davies_bouldin": 1.4212,
+      "tamanos": [
+        342,
+        671,
+        325,
+        552
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "HAC (Ward)",
+      "k": 5,
+      "silhouette": 0.2356,
+      "calinski_harabasz": 561.71,
+      "davies_bouldin": 1.3066,
+      "tamanos": [
+        671,
+        552,
+        325,
+        71,
+        271
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "GMM (Full)",
+      "k": 2,
+      "silhouette": 0.2622,
+      "calinski_harabasz": 705.01,
+      "davies_bouldin": 1.4985,
+      "tamanos": [
+        1005,
+        885
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "GMM (Full)",
+      "k": 3,
+      "silhouette": 0.2321,
+      "calinski_harabasz": 513.45,
+      "davies_bouldin": 1.823,
+      "tamanos": [
+        932,
+        601,
+        357
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "GMM (Full)",
+      "k": 4,
+      "silhouette": 0.2465,
+      "calinski_harabasz": 545.76,
+      "davies_bouldin": 1.3956,
+      "tamanos": [
+        453,
+        816,
+        82,
+        539
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "GMM (Full)",
+      "k": 5,
+      "silhouette": 0.1946,
+      "calinski_harabasz": 533.43,
+      "davies_bouldin": 1.3525,
+      "tamanos": [
+        339,
+        333,
+        91,
+        604,
+        523
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "Spectral Clustering",
+      "k": 2,
+      "silhouette": 0.2768,
+      "calinski_harabasz": 796.53,
+      "davies_bouldin": 1.2686,
+      "tamanos": [
+        1202,
+        688
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "Spectral Clustering",
+      "k": 3,
+      "silhouette": 0.2651,
+      "calinski_harabasz": 562.7,
+      "davies_bouldin": 1.1231,
+      "tamanos": [
+        1272,
+        546,
+        72
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "Spectral Clustering",
+      "k": 4,
+      "silhouette": 0.2406,
+      "calinski_harabasz": 584.67,
+      "davies_bouldin": 1.3391,
+      "tamanos": [
+        651,
+        72,
+        429,
+        738
+      ]
+    },
+    {
+      "esquema": "Esquema B (Ingeniería Características)",
+      "algoritmo": "Spectral Clustering",
+      "k": 5,
+      "silhouette": 0.2043,
+      "calinski_harabasz": 551.36,
+      "davies_bouldin": 1.2289,
+      "tamanos": [
+        552,
+        480,
+        139,
+        661,
+        58
+      ]
+    },
+    {
+      "esquema": "Esquema C (CLR + PCA 85%)",
+      "algoritmo": "K-Means",
+      "k": 2,
+      "silhouette": 0.1231,
+      "calinski_harabasz": 227.64,
+      "davies_bouldin": 2.6814,
+      "tamanos": [
+        1015,
+        875
+      ]
+    },
+    {
+      "esquema": "Esquema C (CLR + PCA 85%)",
+      "algoritmo": "K-Means",
+      "k": 3,
+      "silhouette": 0.0943,
+      "calinski_harabasz": 180.44,
+      "davies_bouldin": 2.6619,
+      "tamanos": [
+        726,
+        628,
+        536
+      ]
+    },
+    {
+      "esquema": "Esquema C (CLR + PCA 85%)",
+      "algoritmo": "K-Means",
+      "k": 4,
+      "silhouette": 0.0897,
+      "calinski_harabasz": 154.74,
+      "davies_bouldin": 2.7597,
+      "tamanos": [
+        274,
+        585,
+        563,
+        468
+      ]
+    },
+    {
+      "esquema": "Esquema C (CLR + PCA 85%)",
+      "algoritmo": "K-Means",
+      "k": 5,
+      "silhouette": 0.0809,
+      "calinski_harabasz": 132.17,
+      "davies_bouldin": 2.8347,
+      "tamanos": [
+        418,
+        294,
+        511,
+        458,
+        209
+      ]
+    }
+  ],
+  "tabla_concordancia": [
+    {
+      "par_modelos": "K-Means vs. K-Medoids (PAM)",
+      "k": 2,
+      "ari": 0.7291,
+      "nmi": 0.685
+    },
+    {
+      "par_modelos": "K-Means vs. K-Medoids (PAM)",
+      "k": 3,
+      "ari": 0.4279,
+      "nmi": 0.4759
+    },
+    {
+      "par_modelos": "K-Means vs. HAC (Ward)",
+      "k": 2,
+      "ari": 0.7267,
+      "nmi": 0.6531
+    },
+    {
+      "par_modelos": "K-Means vs. HAC (Ward)",
+      "k": 3,
+      "ari": 0.5971,
+      "nmi": 0.6133
+    },
+    {
+      "par_modelos": "K-Means vs. Spectral Clustering",
+      "k": 2,
+      "ari": 0.7765,
+      "nmi": 0.7085
+    },
+    {
+      "par_modelos": "K-Means vs. Spectral Clustering",
+      "k": 3,
+      "ari": 0.3632,
+      "nmi": 0.4778
+    },
+    {
+      "par_modelos": "K-Means vs. GMM (Full)",
+      "k": 2,
+      "ari": 0.5205,
+      "nmi": 0.4809
+    },
+    {
+      "par_modelos": "K-Means vs. GMM (Full)",
+      "k": 3,
+      "ari": 0.4447,
+      "nmi": 0.4334
+    },
+    {
+      "par_modelos": "HAC (Ward) vs. Spectral Clustering",
+      "k": 2,
+      "ari": 0.8702,
+      "nmi": 0.7802
+    },
+    {
+      "par_modelos": "HAC (Ward) vs. Spectral Clustering",
+      "k": 3,
+      "ari": 0.3865,
+      "nmi": 0.4697
+    },
+    {
+      "par_modelos": "HAC (Ward) vs. GMM (Full)",
+      "k": 2,
+      "ari": 0.4121,
+      "nmi": 0.4534
+    },
+    {
+      "par_modelos": "HAC (Ward) vs. GMM (Full)",
+      "k": 3,
+      "ari": 0.4636,
+      "nmi": 0.4827
+    }
+  ],
+  "perfiles_k3": {
+    "Cluster_0": {
+      "n": 672,
+      "pct_nacional": 35.56,
+      "pct_jpp_media": 47.7,
+      "pct_fp_media": 9.78,
+      "pct_pco_media": 12.06,
+      "pct_an_media": 5.85,
+      "pct_rp_media": 2.05,
+      "pct_pbg_media": 1.94,
+      "pct_otros_media": 20.62,
+      "nep_media": 3.89,
+      "margen_media": 32.7,
+      "deptos_top": {
+        "Cajamarca": 113,
+        "Ayacucho": 82,
+        "Apurimac": 73,
+        "Huancavelica": 67,
+        "Huanuco": 63
+      }
+    },
+    "Cluster_1": {
+      "n": 604,
+      "pct_nacional": 31.96,
+      "pct_jpp_media": 21.03,
+      "pct_fp_media": 10.95,
+      "pct_pco_media": 15.17,
+      "pct_an_media": 12.6,
+      "pct_rp_media": 3.77,
+      "pct_pbg_media": 6.2,
+      "pct_otros_media": 30.28,
+      "nep_media": 8.07,
+      "margen_media": 6.8,
+      "deptos_top": {
+        "Junin": 84,
+        "Arequipa": 81,
+        "Cusco": 76,
+        "Ancash": 72,
+        "Puno": 72
+      }
+    },
+    "Cluster_2": {
+      "n": 614,
+      "pct_nacional": 32.49,
+      "pct_jpp_media": 13.61,
+      "pct_fp_media": 27.99,
+      "pct_pco_media": 8.86,
+      "pct_an_media": 5.33,
+      "pct_rp_media": 7.52,
+      "pct_pbg_media": 5.87,
+      "pct_otros_media": 30.83,
+      "nep_media": 6.81,
+      "margen_media": 13.69,
+      "deptos_top": {
+        "Lima": 139,
+        "La Libertad": 61,
+        "Ancash": 54,
+        "Loreto": 48,
+        "Piura": 43
+      }
+    }
+  },
+  "pca_var_acumulada": 65.9,
+  "pca_var_cp1": 43.71,
+  "pca_var_cp2": 22.19,
+  "poligonos_emparejados": 1832
+}
