@@ -39,7 +39,7 @@ Se recomienda utilizar Python 3.10 o superior en un entorno virtual aislado:
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/luismiguel-utp/elecciones-peru-2026-ml.git
+git clone https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml.git
 cd elecciones-peru-2026-ml
 
 # 2. Crear entorno virtual
