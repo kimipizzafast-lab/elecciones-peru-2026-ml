@@ -43,6 +43,17 @@
   \def\@oddfoot{}
   \def\@evenfoot{}
 }
+
+% Resumen y Abstract con cuerpo en texto normal (no negrita), encabezado en negrita cursiva
+\renewenvironment{abstract}{%
+  \normalfont\@IEEEabskeysecsize
+  \noindent\textbf{\textit{\abstractname}}---\relax
+}{\par\normalfont\normalsize}
+
+\renewenvironment{IEEEkeywords}{%
+  \normalfont\@IEEEabskeysecsize
+  \noindent\textbf{\textit{\IEEEkeywordsname}}---\relax
+}{\par\normalfont\normalsize}
 \makeatother
 
 \definecolor{tableheader}{RGB}{234,236,238}
