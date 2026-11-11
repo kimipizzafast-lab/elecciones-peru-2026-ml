@@ -271,7 +271,7 @@ ax.axis('off')
 fases = [
     ('Fase 1: Comprensión\ndel Dominio', 'Hiperfragmentación 2026\n35 fórmulas | N=1,890 dist.'),
     ('Fase 2: Comprensión\nde los Datos', 'API ONPE (JSON)\nHomologación UBIGEO'),
-    ('Fase 3: Preparación\ny Características', 'Filtro umbral >=3%\nNEP | Margen Victoria | CLR'),
+    ('Fase 3: Preparación\ny Características', 'Filtro umbral >=4% / Victorias\nNEP | Margen Victoria | CLR'),
     ('Fase 4: Modelamiento\nMultialgorítmico', 'K-Means · PAM · HAC\n· GMM · Spectral (k=2..5)'),
     ('Fase 5: Evaluación\ny Validación', 'Silhouette · Calinski-H.\n· Davies-Bouldin · ARI/NMI'),
     ('Fase 6: Despliegue\ny Reproducibilidad', 'Mapas coropléticos, PCA\nSoftware abierto en GitHub')
@@ -282,7 +282,7 @@ for (t, d), (x, y) in zip(fases, pos):
     ax.text(x + 0.145, y + 0.25, t, ha='center', va='center', fontsize=8.5, weight='bold', color='#1f4e79')
     ax.text(x + 0.145, y + 0.09, d, ha='center', va='center', fontsize=7.2, color='#2c3e50')
 arrows = [((0.31, 0.73), (0.35, 0.73)), ((0.64, 0.73), (0.68, 0.73)), ((0.825, 0.55), (0.825, 0.44)),
-          ((0.68, 0.26), (0.64, 0.26)), ((0.35, 0.26), (0.31, 0.26)), ((0.165, 0.44), (0.165, 0.55))]
+          ((0.68, 0.26), (0.64, 0.26)), ((0.35, 0.26), (0.31, 0.26))]
 for a, b in arrows:
     ax.annotate('', xy=b, xytext=a, arrowprops=dict(arrowstyle='->', color='#1f4e79', lw=1.5))
 ax.set_xlim(0, 1)
