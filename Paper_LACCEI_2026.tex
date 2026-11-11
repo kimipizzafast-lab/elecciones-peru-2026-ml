@@ -1,0 +1,461 @@
+\documentclass[conference,10pt,letterpaper]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-\do.\do\_\do\?\do\=\do\&}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{microtype}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{5}
+\setcounter{totalnumber}{10}
+\setcounter{dbltopnumber}{5}
+
+\usepackage{balance}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+}
+
+% Encabezado oficial LACCEI 2026
+\makeatletter
+\def\ps@lacceiheader{
+  \def\@oddhead{\hfill\textit{\footnotesize 24th LACCEI International Multi-Conference for Engineering, Education, and Technology $\cdot$ Santiago, Chile $\cdot$ 2026}\hfill}
+  \def\@evenhead{\hfill\textit{\footnotesize 24th LACCEI International Multi-Conference for Engineering, Education, and Technology $\cdot$ Santiago, Chile $\cdot$ 2026}\hfill}
+  \def\@oddfoot{}
+  \def\@evenfoot{}
+}
+\makeatother
+
+\definecolor{tableheader}{RGB}{234,236,238}
+\definecolor{rowalt}{RGB}{248,249,249}
+
+\begin{document}
+
+\title{Clusterización territorial de las preferencias electorales en la primera vuelta presidencial del Perú 2026 aplicando algoritmos de Machine Learning no supervisado sobre datos de la ONPE}
+
+\author{
+\IEEEauthorblockN{Luis Miguel Tirabantes Córdova$^1$ \quad y \quad Omar Santillán Aching$^2$}
+\IEEEauthorblockA{$^1$Department of Engineering, Universidad Tecnológica del Perú, Lima, Perú, \texttt{u17307151@utp.edu.pe}\\
+$^2$Department of Engineering, Universidad Tecnológica del Perú, Lima, Perú, \texttt{c25611@utp.edu.pe}}
+}
+
+\maketitle
+\begin{table*}[t]
+\centering
+\caption{Síntesis comparativa de antecedentes en clusterización y analítica territorial electoral (Perú, Chile, Brasil y Colombia).}
+\label{tab:antecedentes}
+\scriptsize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabularx}{\textwidth}{@{} l p{2.3cm} p{2.4cm} p{2.5cm} p{2.4cm} X @{}}
+\toprule
+\textbf{Autor y Año} & \textbf{País / Nivel} & \textbf{Fuente de Datos} & \textbf{Algoritmos Aplicados} & \textbf{Métricas de Evaluación} & \textbf{Aporte Principal al Presente Estudio} \\
+\midrule
+Encinas y Fuentes (2021) \cite{encinas2021} & Perú / Distrital & ONPE (Elecciones 2021) & LISA, Moran bivariado & Pseudo $p$-valor, $I$ de Moran & Evidencia que el sufragio distrital no responde a macrozonas homogéneas. \\
+Zacharías et al. (2015) \cite{zacharias2015} & Perú / Mesas e IDH & ONPE / PNUD & Regresión multivariada & $R^2$ ajustado, prueba $F$ & Diferencia voto individual de agregación territorial para evitar falacia ecológica. \\
+Rebolledo-Vega et al. (2025) \cite{rebolledo2025} & Chile / Comunal & SERVEL / Censo & HAC Ward + K-Means & WCSS, Coef. Silhouette & Integra clustering jerárquico y particional con contexto sociodemográfico. \\
+Jacintho et al. (2021) \cite{jacintho2021} & Brasil / Municipal & TSE Brasil (5 etapas) & LISA + HAC Ward & Silhouette, CH, Davies-Bouldin & Flujo computacional evaluado sistemáticamente con métricas internas de clustering. \\
+Silva et al. (2022) \cite{silva2022} & Brasil / Regional & TSE / Ind. Des. Social & K-Means ($k = 4$) & Inercia intraclúster & Tipologías electorales articuladas sobre brechas de desarrollo socioeconómico. \\
+Díaz-Arguello (2025) \cite{diaz2025} & Colombia / Municipal & Registraduría Nal. & K-Means (Filtro $> 5\,\%$) & Silhouette Score & Demuestra que filtrar micro-fuerzas marginales suprime el ruido dimensional. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\thispagestyle{lacceiheader}
+\pagestyle{lacceiheader}
+
+\begin{abstract}
+\textbf{Resumen---}La fragmentación multipartidista y la marcada heterogeneidad espacial complican la caracterización objetiva de las preferencias electorales en el Perú. Este artículo investiga la segmentación territorial de los resultados de la primera vuelta presidencial de las Elecciones Generales 2026, abarcando la totalidad de las 1,890 circunscripciones distritales del país a partir de los datos abiertos oficiales de la Oficina Nacional de Procesos Electorales (ONPE). Ante el desafío de procesar matrices de alta dimensionalidad y divergencias de codificación geográfica (UBIGEO INEI frente a RENIEC/ONPE), se estructuró un pipeline computacional automatizado bajo el marco metodológico CRISP-DM. Para mitigar la dispersión dimensional observada en la matriz cruda de 35 fórmulas presidenciales (Línea Base en $k = 2$: Silhouette = 0.1409, Davies-Bouldin = 2.5742, Calinski-Harabasz = 208.39), se diseñó un esquema de ingeniería de características que retuvo las fuerzas de representatividad efectiva (umbral distrital medio $\ge 4\,\%$ o victorias distritales) e incorporó el Número Efectivo de Partidos (NEP) y el margen de victoria distrital. K-Means se evaluó de $k = 2$ a $5$ y las cinco familias algorítmicas se compararon sistemáticamente en $k = 2$ y $k = 3$. El esquema propuesto elevó el coeficiente de Silhouette a 0.2841 en $k = 2$ y a 0.2650 en $k = 3$, reduciendo el índice de Davies-Bouldin a 1.3214 ($k = 2$) y 1.4868 ($k = 3$), y cuadruplicando el criterio de Calinski-Harabasz (824.39 en $k = 2$ y 702.34 en $k = 3$). K-Means en su partición seleccionada ($k = 3$) identificó tres perfiles territoriales nítidos: hegemonía andino-rural (JPP 47.70\,\%, margen 32.70 pp), competitividad urbano-costera (FP 27.99\,\%, margen 13.69 pp) e hiperfragmentación de centro y ciudades intermedias (NEP = 8.07, margen 6.80 pp). La reproducibilidad computacional y la auditoría analítica independiente se facilitan mediante el repositorio público y abierto \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+\textbf{Palabras clave---}Clusterización territorial, datos electorales abiertos, Machine Learning no supervisado, primera vuelta presidencial, CRISP-DM.
+\end{IEEEkeywords}
+
+\vspace{0.5em}
+
+\renewcommand\abstractname{Abstract}
+\begin{abstract}
+\textbf{Abstract---}Multiparty fragmentation and marked spatial heterogeneity challenge the objective characterization of electoral preferences in Peru. This paper investigates the territorial segmentation of the 2026 first-round presidential election results across all 1,890 official district-level constituencies nationwide using open data from the National Office of Electoral Processes (ONPE). To overcome high-dimensional data sparsity and dual geographic coding standards (INEI vs. RENIEC/ONPE UBIGEO), an automated computational pipeline was structured under the CRISP-DM framework. To mitigate the curse of dimensionality observed in the raw matrix of 35 presidential tickets (Baseline at $k = 2$: Silhouette = 0.1409, Davies-Bouldin = 2.5742, Calinski-Harabasz = 208.39), a feature engineering scheme was designed retaining effective political forces (mean district share $\ge 4\,\%$ or district victories) and incorporating the Effective Number of Parties (ENP) and the district victory margin. K-Means was evaluated across $k = 2$ to $5$, and the five algorithmic families were systematically benchmarked at $k = 2$ and $k = 3$. The proposed scheme substantially improved clustering metrics, raising the Silhouette score to 0.2841 at $k = 2$ and 0.2650 at $k = 3$, reducing Davies-Bouldin to 1.3214 ($k = 2$) and 1.4868 ($k = 3$), and quadrupling Calinski-Harabasz (824.39 at $k = 2$ and 702.34 at $k = 3$). K-Means in its selected partition ($k = 3$) uncovered three distinct territorial profiles: Andean-rural hegemony (JPP 47.70\,\%, margin 32.70 pp), coastal-urban competition (FP 27.99\,\%, margin 13.69 pp), and central-intermediate city hyperfragmentation (ENP = 8.07, margin 6.80 pp). Computational reproducibility and independent analytical auditing are supported via the public open repository \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+\textbf{Keywords---}Territorial clustering, electoral open data, unsupervised Machine Learning, presidential first round, CRISP-DM.
+\end{IEEEkeywords}
+
+\section{Introducción}
+
+Conocer dónde se concentra el respaldo de cada organización política y cuán competitivo es cada territorio exige descender del agregado nacional a la escala distrital: en ese nivel la representatividad democrática se vuelve observable y medible. El contexto regional refuerza el interés por estas mediciones: el Democracy Tracker de International IDEA situó la participación electoral promedio de las Américas en 59.91\,\% durante el primer semestre de 2024 (corte al 30 de junio de 2024) \cite{idea2024}. Paralelamente, el informe Latinobarómetro 2024 (sección 4.11.6) documentó que el 62\,\% de los latinoamericanos y el 55\,\% de los ciudadanos en el Perú consideran que la decisión del sufragio influye en el porvenir colectivo; no obstante, esta expectativa coexiste con niveles críticos de desafección institucional y desconfianza en los partidos políticos \cite{latinobarometro2024}.
+
+En el sistema político peruano, el comportamiento del voto agregado se distingue por una acentuada heterogeneidad territorial, articulada sobre una debilidad estructural y atomización de las organizaciones partidarias \cite{sulmont2018, levitsky2003}. Estudios clásicos y contemporáneos han corroborado que las preferencias varían de acuerdo con fracturas espaciales, niveles de urbanización y estratos de ruralidad \cite{quintanilla2020, carranza2022}. En particular, el trabajo de Encinas y Fuentes Diestra \cite{encinas2021}, mediante indicadores locales de asociación espacial (LISA) aplicados a los comicios de 2021, comprobó que el electorado peruano no se organiza en macro-regiones uniformes, sino en patrones territoriales complejos y fragmentados.
+
+Esta dinámica de dispersión alcanzó un punto crítico en la primera vuelta de las Elecciones Generales del 12 de abril de 2026. El Jurado Nacional de Elecciones (JNE) registró oficialmente 36 solicitudes de inscripción de fórmulas presidenciales y más de 1,700 listas parlamentarias \cite{jne2025_inscripcion, jne2026_compendio}. Posteriormente, la Resolución N.$^\circ$ 01246-2026-JEE-LIC1/JNE del Jurado Electoral Especial de Lima Centro 1 declaró sin efecto la fórmula del Partido de los Trabajadores y Emprendedores (PTE-Perú) tras el sensible fallecimiento de su candidato presidencial, determinando que sus sufragios fueran computados formalmente como votos nulos conforme a la normativa electoral vigente \cite{jee2026_pte}. De este modo, exactamente 35 fórmulas presidenciales compitieron válidamente en las 1,890 circunscripciones distritales del país, cuyos resultados oficiales fueron publicados por la ONPE en su plataforma de cómputo en tiempo real \cite{onpe2026_resultados_web}. Asimismo, el informe de la ONPE en su serie Analítica Electoral N.$^\circ$ 1 evidenció que el ausentismo disminuyó de 28\,\% en 2021 a 24\,\% en 2026 a escala nacional, subrayando persistentes disparidades territoriales en la concurrencia ciudadana \cite{onpe2026_analitica1}. Complementariamente, el análisis institucional de la ONPE en Analítica Electoral N.$^\circ$ 3 consignó que Juntos por el Perú (JPP) obtuvo el primer lugar distrital en 1,108 circunscripciones y Fuerza Popular (FP) en 583 distritos \cite{onpe2026_noticia1427006}.
+
+En la literatura internacional sobre geografía electoral e ingeniería computacional, la clusterización no supervisada sobre unidades administrativas agregadas (comunas, municipios y distritos) ha ganado protagonismo frente a los modelos inferenciales individuales. La Tabla~\ref{tab:antecedentes} sintetiza las contribuciones metodológicas más relevantes en la región.
+
+
+
+A pesar de estos avances, el análisis electoral convencional en el Perú adolece de tres limitaciones fundamentales: 1) sintetiza el mapa político reduciéndolo de manera uninominal al ``partido ganador'' o imponiendo divisiones geográficas preconcebidas (costa, sierra y selva) \cite{quintanilla2020, encinas2021}, lo que enmascara la presencia de segundas fuerzas competitivas y empates territoriales; 2) introduce ruido dimensional severo y colapso de distancias al aplicar algoritmos de agrupamiento directamente sobre matrices dispersas con decenas de agrupaciones marginales \cite{diaz2025}; y 3) enfrenta discrepancias estructurales entre la codificación electoral de RENIEC/ONPE y el catálogo cartográfico nacional del INEI \cite{inei2026_directorio}, obligando a exclusiones muestrales arbitrarias en la literatura previa.
+
+En este sentido, el vacío científico consiste en la ausencia de estudios en el Perú que aborden la hiperfragmentación electoral mediante un pipeline reproducible bajo CRISP-DM, comparando sistemáticamente algoritmos de Machine Learning sobre el universo distrital completo. Como hipótesis de investigación, se plantea que las circunscripciones distritales peruanas se organizan en un número reducido de tipologías competitivas distinguibles por sus niveles de fragmentación partidaria y dominancia política relativa, y no por las macrozonas geográficas tradicionales.
+
+Para cerrar esta brecha, el objetivo general de la investigación es determinar y caracterizar los clústeres territoriales de las preferencias electorales a nivel distrital en la primera vuelta presidencial del Perú 2026, aplicando algoritmos de Machine Learning no supervisado sobre datos oficiales de la ONPE bajo CRISP-DM. Los objetivos específicos son: 1) construir y depurar un conjunto de datos unificado para los 1,890 distritos homologando UBIGEOs e implementando ingeniería de características; 2) comparar el rendimiento de cinco familias algorítmicas no supervisadas mediante métricas intrínsecas (Silhouette, Calinski-Harabasz, Davies-Bouldin) y estabilidad inter-modelo (ARI, NMI); y 3) caracterizar cuantitativa y espacialmente las tipologías resultantes vinculándolas con la cartografía nacional.
+
+La contribución es triple. Para la teoría electoral, aporta medición cuantitativa de la geografía del voto peruano a la máxima resolución administrativa disponible. Para la metodología de agrupamiento, somete a prueba, sobre un caso extremo de fragmentación partidaria, el filtrado de fuerzas marginales y la incorporación de indicadores estructurales. Para la práctica, entrega a investigadores, partidos políticos (para optimización de campañas) y organismos electorales (ONPE y JNE, para logística, fiscalización y comunicación de resultados) un pipeline y una base homologada reutilizables, disponibles públicamente en \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}, en la línea de ingeniería aplicada de Ovalle et al. \cite{ovalle2024, ovalle2026_laccei}.
+
+\section{Metodología}
+
+\subsection{Fuente de Datos, Universo Distrital, Homologación Geográfica y Cobertura Territorial}
+
+La investigación utilizó los microdatos oficiales de resultados de la primera vuelta presidencial 2026 publicados en la plataforma abierta de la ONPE \cite{onpe2026_resultados_web}. La unidad de análisis correspondió a la circunscripción distrital agregada, alcanzando un universo censal de 1,890 distritos.
+
+En el tratamiento de la cartografía electoral peruana, subsiste una divergencia estructural entre el estándar estadístico del INEI \cite{inei2026_directorio} (que registra 1,893 distritos creados por ley y numera a la Provincia Constitucional del Callao con código departamental 07 en la secuencia alfabética 01 a 25) y la codificación histórica de RENIEC/ONPE (que asigna a Lima el prefijo 14 en lugar de 15 y no incluye al Callao como departamento separado en la secuencia). Esta disparidad genera un desplazamiento sistemático de exactamente menos uno ($-1$) en los códigos departamentales de todas las circunscripciones situadas desde Cusco en adelante: La Libertad (13 en INEI pasa a 12 en ONPE), Lambayeque (14 a 13), Madre de Dios (17 a 16), Pasco (19 a 18), Piura (20 a 19), Puno (21 a 20), San Martín (22 a 21) y Tacna (23 a 22).
+
+El pipeline computacional desarrollado implementó un módulo de reconciliación algorítmica determinista que resolvió este desfase secuencial de forma automatizada en memoria, emparejando con precisión las 23 circunscripciones históricamente conflictivas (entre ellas Virú en La Libertad, Eten en Lambayeque, San Miguel y San Andrés de Tupicocha en Lima, Puerto Bermúdez y Tápuc en Pasco, Ayabaca y Jililí en Piura, Macari y Pisacoma en Puno, Juanjuí y Rioja en San Martín, y Calana y Susapaya en Tacna). Con este procedimiento, el software recuperó y consolidó la totalidad de los 1,890 distritos electorales del país con 100.00\,\% de integridad referencial, eliminando cualquier pérdida de información o necesidad de muestreo restringido.
+
+\textbf{Diferenciación entre Cobertura Analítica y Cobertura Cartográfica:} Es fundamental distinguir entre:
+\begin{itemize}
+    \item \textit{Cobertura Analítica (Universo del Estudio):} Abarca los 1,890 distritos oficiales (100.00\,\%). Todos ellos fueron normalizados, clusterizados por los cinco algoritmos y empleados en el cálculo de métricas de dispersión, centroides, pruebas ANOVA y análisis de perfiles.
+    \item \textit{Cobertura Cartográfica (Visualización Espacial):} Comprende 1,832 distritos emparejados (96.93\,\%) en la capa GeoJSON simplificada de acceso público (\texttt{peru\_distrital\_simple.geojson} \cite{eladio2020}). La brecha de 58 distritos (3.07\,\%) corresponde a circunscripciones de reciente creación legal por el Congreso de la República (creadas entre 2014 y 2021, entre ellas: Mi Perú en el Callao; José María Arguedas en Apurímac; Canayre, Uchuraccay, Pucacolpa, Chaca, Putis, Samugari, Anchihuay, Oronccoy, Unión Progreso, Río Magdalena, Ninabamba y Patibamba en Ayacucho/VRAEM; así como distritos en Huánuco, Loreto y San Martín), cuyos límites no están vectorizados en dicha geometría simplificada. Estos 58 distritos participaron plenamente en el modelado de Machine Learning y únicamente se omitieron del renderizado coroplético bidimensional.
+\end{itemize}
+
+\subsection{Diseño Metodológico CRISP-DM}
+
+El flujo de trabajo se organizó como un ciclo CRISP-DM \cite{chapman2000, schroer2021} adaptado al dominio comicial. Primero se delimitó el problema y los requisitos de datos; después se auditó y extrajo el archivo de resultados de la ONPE; la tercera etapa concentró la depuración y la ingeniería de características; le siguieron el entrenamiento simultáneo de los cinco algoritmos y su validación con métricas internas de cohesión y separación; el ciclo cierra con el despliegue del artefacto y la cartografía de las particiones (Fig.~\ref{fig:crispdm}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\columnwidth, height=3.6cm, keepaspectratio]{figuras_laccei/fig1_crispdm.png}
+\caption{Arquitectura metodológica del pipeline computacional bajo el estándar CRISP-DM ($N = 1,890$ distritos).}
+\label{fig:crispdm}
+\end{figure}
+
+\subsection{Ingeniería de Características y Tratamiento Composicional}
+
+Para mitigar la dispersión en ceros y el colapso métrico derivado de la alta dimensionalidad (35 fuerzas crudas), se evaluaron tres esquemas de datos:
+\begin{itemize}
+    \item \textit{Esquema A (Línea Base):} Comprende las 35 fórmulas presidenciales crudas estandarizadas mediante \texttt{StandardScaler} ($\mu = 0, \sigma = 1$).
+    \item \textit{Esquema B (Ingeniería de Características Propuesta):} Siguiendo a Díaz-Arguello \cite{diaz2025}, se aislaron como variables individuales las 6 organizaciones políticas de representatividad sustantiva (aquellas con promedio distrital superior al 4\,\% a nivel nacional o con más de 50 victorias distritales: JPP, FP, PCO, AN, RP y PBG). Las restantes 29 agrupaciones minoritarias (que acumularon en conjunto 21 victorias distritales aisladas) fueron consolidadas en la variable sintética \texttt{PCT\_OTROS} (27.02\,\% medio), absorbiendo la dispersión en ceros. Asimismo, se incorporaron dos variables estructurales: el Margen de Victoria Distrital (MV, distancia porcentual entre primer y segundo lugar) y el Número Efectivo de Partidos de Laakso y Taagepera (\ref{eq:nep}).
+    \item \textit{Esquema C (Composicional CLR + PCA):} Como las cuotas son datos composicionales con suma constante \cite{greenacre2021}, las variables se proyectaron al logaritmo centrado (CLR, (\ref{eq:clr})), habilitando un tratamiento euclidiano sin distorsión de cierre y reduciendo posteriormente el espacio por PCA reteniendo el 85\,\% de varianza acumulada.
+\end{itemize}
+
+\subsection{Algoritmos de Machine Learning Evaluados}
+
+La comparación abarcó cinco familias de agrupamiento \cite{rokach2005}: el particional K-Means \cite{hartigan1979}; su variante robusta K-Medoids (PAM), que ancla cada grupo a un distrito real; el jerárquico aglomerativo con enlace de Ward \cite{ward1963}, que fusiona grupos minimizando el incremento de la varianza interna; el modelo probabilístico de mezclas gaussianas con covarianza completa ajustado por maximización de la esperanza (GMM) \cite{dempster1977}; y el espectral, que construye un grafo de afinidad con los 15 vecinos más próximos de cada distrito. K-Means se evaluó de $k = 2$ a $5$ para examinar la estabilidad hiperparamétrica, mientras que la comparación sistemática multialgorítmica se analizó en $k = 2$ y $k = 3$, particiones que concentran las cotas superiores de interpretabilidad y cohesión.
+
+\subsection{Métricas de Validación Matemática y Ecuaciones Formales}
+
+Siguiendo la formalidad de Ovalle et al. \cite{ovalle2024}, las particiones se validaron mediante las siguientes funciones objetivo:
+
+Para valorar la calidad de cada partición se empleó el coeficiente de silueta de Rousseeuw \cite{rousseeuw1987}, que contrasta, para cada distrito $i$, su distancia media a los miembros de su propio grupo, $a(i)$, con la distancia media al grupo vecino más próximo, $b(i)$:
+\begin{equation}
+S = \frac{1}{N} \sum_{i=1}^{N} \frac{b(i) - a(i)}{\max(a(i), b(i))}
+\label{eq:silhouette}
+\end{equation}
+
+Como contraste se utilizaron dos criterios complementarios. El índice de Calinski-Harabasz \cite{calinski1974} premia las particiones cuya matriz de dispersión entre grupos ($\mathbf{B}_k$) domina a la dispersión interna ($\mathbf{W}_k$):
+\begin{equation}
+CH(k) = \frac{\mathrm{Tr}(\mathbf{B}_k)}{\mathrm{Tr}(\mathbf{W}_k)} \times \frac{N - k}{k - 1}
+\label{eq:ch}
+\end{equation}
+
+El índice de Davies-Bouldin \cite{davies1979} compara cada grupo contra su vecino más similar en función de la dispersión interna ($\sigma_c, \sigma_m$) y la distancia entre centroides ($d(\mu_c, \mu_m)$):
+\begin{equation}
+DB = \frac{1}{k} \sum_{c=1}^{k} \max_{m \neq c} \left( \frac{\sigma_c + \sigma_m}{d(\mu_c, \mu_m)} \right)
+\label{eq:db}
+\end{equation}
+
+La fragmentación local se resumió con el número efectivo de partidos de Laakso y Taagepera a partir de las cuotas $p_{i,j}$ de las $D = 35$ fórmulas:
+\begin{equation}
+\mathrm{NEP}_i = \frac{1}{\sum_{j=1}^{D} (p_{i,j} / 100)^2}
+\label{eq:nep}
+\end{equation}
+
+Finalmente, para datos composicionales \cite{greenacre2021}, la transformación CLR resta a cada proporción el logaritmo de la media geométrica distrital:
+\begin{equation}
+\mathrm{clr}(Z_{i,j}) = \ln(Z_{i,j}) - \frac{1}{D} \sum_{l=1}^{D} \ln(Z_{i,l})
+\label{eq:clr}
+\end{equation}
+
+\section{Resultados}
+
+\subsection{Distribución Descriptiva, Conciliación de Cifras Distritales y Demostración de Empates}
+
+La Tabla~\ref{tab:descriptivos} expone los estadísticos descriptivos de las variables sobre los 1,890 distritos del Perú. Juntos por el Perú (JPP) obtuvo el primer lugar algorítmico en 1,107 distritos (58.57\,\%), promediando 28.10\,\% de votos válidos. Fuerza Popular (FP) alcanzó el triunfo en 583 distritos (30.85\,\%) con una media de 16.07\,\%. Las agrupaciones restantes registraron victorias territoriales acotadas: Ahora Nación (AN) en 74 distritos (3.92\,\%), Partido Cívico Obras (PCO) en 51 distritos (2.70\,\%), Renovación Popular (RP) en 36 distritos (1.90\,\%) y Partido del Buen Gobierno (PBG) en 18 distritos (0.95\,\%). El conjunto consolidado de otros 29 partidos sumó 21 victorias distritales dispersas (1.11\,\%). La suma total reproduce exactamente el universo comicial analizado: $1,107 + 583 + 74 + 51 + 36 + 18 + 21 = 1,890$ distritos (100.00\,\%).
+
+\begin{table}[htbp]
+\centering
+\caption{Estadísticos descriptivos de las variables electorales ($N = 1,890$).}
+\label{tab:descriptivos}
+\footnotesize
+\begin{tabularx}{\columnwidth}{X c c r}
+\toprule
+\textbf{Variable / Fuerza} & \textbf{Media} & \textbf{DE} & \textbf{Victorias (\%)} \\
+\midrule
+Juntos por el Perú (JPP) & 28.10\% & 17.40\% & 1,107 (58.57\%) \\
+Fuerza Popular (FP) & 16.07\% & 11.20\% & 583 (30.85\%) \\
+Ahora Nación (AN) & 7.84\% & 5.08\% & 74 (3.92\%) \\
+Partido Cívico Obras (PCO) & 12.01\% & 4.88\% & 51 (2.70\%) \\
+Renovación Popular (RP) & 4.38\% & 4.97\% & 36 (1.90\%) \\
+Partido Buen Gobierno (PBG) & 4.58\% & 4.06\% & 18 (0.95\%) \\
+Otros Partidos (29 part.) & 27.02\% & 7.70\% & 21 (1.11\%) \\
+\midrule
+Núm. Efectivo Partidos (NEP) & 6.18 & 2.14 & [2.07 -- 13.98] \\
+Margen Victoria Distrital (MV) & 18.24 pp & 14.83 pp & [0.00 -- 72.39] \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Demostración y Conciliación de Cifras de Victorias con la ONPE:} La publicación oficial de la ONPE en su reporte institucional \textit{Analítica Electoral N.$^\circ$ 3} \cite{onpe2026_noticia1427006} y su plataforma oficial \cite{onpe2026_resultados_web} reporta que JPP alcanzó el primer lugar en 1,108 distritos y FP en 583 distritos. La diferencia de exactamente un distrito en JPP (1,107 en nuestro conteo algorítmico frente a 1,108 oficial de la ONPE; coincidencia del 99.95\,\%) se explica detalladamente mediante la auditoría de empates a nivel de microdatos:
+
+Se detectaron exactamente cinco circunscripciones con empate porcentual idéntico a tres cifras decimales (margen de 0.000 pp):
+\begin{enumerate}
+    \item \textit{Limabamba} (Amazonas, RENIEC: 010505, INEI: 010605): FP (15.495\,\%) vs. RP (15.495\,\%).
+    \item \textit{Chacas} (Áncash, RENIEC: 021801, INEI: 020401): JPP (18.951\,\%) vs. AN (18.951\,\%).
+    \item \textit{Ingenio} (Junín, RENIEC: 110121, INEI: 120122): JPP (18.847\,\%) vs. FP (18.847\,\%).
+    \item \textit{Padre Márquez} (Loreto, RENIEC: 150503, INEI: 160603): JPP (28.455\,\%) vs. FP (28.455\,\%).
+    \item \textit{Ajoyani} (Puno, RENIEC: 200302, INEI: 210302): JPP (25.495\,\%) vs. PCO (25.495\,\%).
+\end{enumerate}
+
+El procedimiento computacional de indexación tabular resuelve los empates en punto flotante por orden de columna léxica (\texttt{idxmax()}), asignando la primera ubicación a favor de FP en Ingenio y Padre Márquez (al preceder alfabéticamente a JPP), lo que arroja 1,107 distritos para JPP y 583 para FP. Por el contrario, la ONPE realiza el cómputo oficial a partir de votos enteros absolutos en actas y, ante empates estrictos de sufragios nominales, la Ley Orgánica de Elecciones (Ley N.$^\circ$ 26859, Art. 275) dispone la resolución mediante sorteo público ante el Jurado Electoral Especial (JEE) correspondiente. De este modo, la ONPE proclamó 1,108 distritos para JPP y 583 para FP \cite{onpe2026_noticia1427006}. 
+
+\textit{Relevancia metodológica:} Se subraya que los modelos de Machine Learning no supervisado procesan matrices continuas compuestas por las cuotas de sufragio de todos los partidos, el margen y el NEP; en ningún momento emplean la etiqueta discreta del ``partido ganador'' como variable de entrada. Por consiguiente, esta discrepancia institucional de una sola unidad en la etiqueta nominal no altera en absoluto las fronteras de clúster, centroides ni métricas de cohesión matemática.
+
+\subsection{Comparación Multimodelo y Rendimiento según Esquema de Datos}
+
+La Tabla~\ref{tab:modelos} detalla la comparación cuantitativa de los modelos. En el Esquema B, K-Means duplica el coeficiente de Silhouette respecto a la línea base del Esquema A (pasa de 0.1409 a 0.2841 en $k = 2$ y 0.2650 en $k = 3$), cuadruplica el índice de Calinski-Harabasz (de 208.39 a 824.39 en $k = 2$ y 702.34 en $k = 3$) y reduce drásticamente Davies-Bouldin de 2.5742 a 1.3214 en $k = 2$ y 1.4868 en $k = 3$.
+
+\begin{table*}[t]
+\centering
+\caption{Rendimiento comparativo de los modelos según esquema de preprocesamiento ($N = 1,890$ distritos).}
+\label{tab:modelos}
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l l c c c c l @{}}
+\toprule
+\textbf{Esquema} & \textbf{Algoritmo} & \textbf{$k$} & \textbf{Silhouette ($S \uparrow$)} & \textbf{Calinski-Harabasz ($CH \uparrow$)} & \textbf{Davies-Bouldin ($DB \downarrow$)} & \textbf{Tamaños de Clúster} \\
+\midrule
+Esquema A (35 crudas) & K-Means (Línea Base) & 2 & 0.1409 & 208.39 & 2.5742 & [1191, 699] \\
+Esquema A (35 crudas) & K-Means (Línea Base) & 3 & 0.1150 & 169.72 & 2.4450 & [917, 531, 442] \\
+Esquema A (35 crudas) & K-Means (Línea Base) & 4 & 0.1023 & 144.94 & 2.6841 & [423, 669, 321, 477] \\
+Esquema A (35 crudas) & K-Means (Línea Base) & 5 & 0.1016 & 130.32 & 2.3997 & [715, 63, 525, 210, 377] \\
+\midrule
+Esquema B (Propuesto) & K-Means & 2 & \textbf{0.2841} & \textbf{824.39} & \textbf{1.3214} & [1100, 790] \\
+Esquema B (Propuesto) & K-Means (Seleccionado) & 3 & \textbf{0.2650} & \textbf{702.34} & \textbf{1.4868} & [614, 604, 672] \\
+Esquema B (Propuesto) & K-Means & 4 & 0.2631 & 685.31 & 1.2969 & [525, 387, 482, 496] \\
+Esquema B (Propuesto) & K-Means & 5 & 0.2654 & 657.23 & 1.1882 & [457, 45, 506, 418, 464] \\
+Esquema B (Propuesto) & K-Medoids (PAM) & 2 & 0.2825 & 805.99 & 1.3880 & [926, 964] \\
+Esquema B (Propuesto) & K-Medoids (PAM) & 3 & 0.2408 & 635.74 & 1.4133 & [837, 694, 359] \\
+Esquema B (Propuesto) & HAC (Enlace Ward) & 2 & 0.2684 & 769.24 & 1.2762 & [1219, 671] \\
+Esquema B (Propuesto) & HAC (Enlace Ward) & 3 & 0.2309 & 616.18 & 1.4575 & [894, 671, 325] \\
+Esquema B (Propuesto) & GMM & 2 & 0.2622 & 705.01 & 1.4985 & [885, 1005] \\
+Esquema B (Propuesto) & GMM & 3 & 0.2321 & 513.45 & 1.8230 & [932, 601, 357] \\
+Esquema B (Propuesto) & Spectral Clustering & 2 & 0.2768 & 796.53 & 1.2686 & [1202, 688] \\
+Esquema B (Propuesto) & Spectral Clustering & 3 & 0.2651 & 562.70 & 1.1231 & [1272, 546, 72] \\
+\midrule
+Esquema C (CLR + PCA 85\%) & K-Means & 2 & 0.1231 & 227.64 & 2.6814 & [1015, 875] \\
+Esquema C (CLR + PCA 85\%) & K-Means & 3 & 0.0943 & 180.44 & 2.6619 & [726, 628, 536] \\
+\bottomrule
+\end{tabular*}
+\end{table*}
+
+\textbf{Justificación de la partición seleccionada ($k = 3$):} Si bien la partición binaria ($k = 2$) maximiza matemáticamente el coeficiente de Silhouette global (0.2841) al polarizar el espacio electoral entre Lima/Costa y la Sierra, el análisis de las curvas de optimización (Fig.~\ref{fig:curvas}) identifica un codo estructural en $k = 3$. La adopción de $k = 3$ se fundamenta en su alta solidez cuantitativa (Silhouette = 0.2650, Calinski-Harabasz = 702.34) y, crucialmente, en su superior interpretabilidad sustantiva: desagrega el heterogéneo bloque interior en dos realidades sociopolíticas cualitativamente opuestas ---un bloque andino rural de marcada hegemonía frente a un espacio intermedio de profunda dispersión y competencia multipartidista--- aportando un valor analítico que la partición de $k = 2$ enmascara.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\columnwidth, height=3.6cm, keepaspectratio]{figuras_laccei/fig2_curvas_optimizacion.png}
+\caption{Curvas de optimización de hiperparámetros: (a) Silhouette vs. $k$; (b) Davies-Bouldin vs. $k$.}
+\label{fig:curvas}
+\end{figure}
+
+\subsection{Estabilidad y Concordancia entre Particiones (ARI y NMI)}
+
+La Tabla~\ref{tab:estabilidad} presenta la concordancia inter-modelo evaluada en el Esquema B. Para $k = 2$, los métodos geométricos alcanzan alta estabilidad (K-Means vs. PAM: ARI = 0.7291; K-Means vs. HAC Ward: ARI = 0.7267). Para la partición tripartita seleccionada ($k = 3$), la estabilidad geométrica se mantiene de moderada a sustancial (K-Means vs. HAC Ward: ARI = 0.5971, NMI = 0.6133; K-Means vs. PAM: ARI = 0.4279, NMI = 0.4759), constatando que los núcleos de las tres tipologías son robustos ante cambios de función objetivo, aunque las zonas de transición distrital exhiben una asignación gradual.
+
+\begin{table}[htbp]
+\centering
+\caption{Matriz de estabilidad y concordancia inter-modelo (Esquema B).}
+\label{tab:estabilidad}
+\footnotesize
+\begin{tabularx}{\columnwidth}{l c c c}
+\toprule
+\textbf{Par de Algoritmos} & \textbf{$k$} & \textbf{ARI} & \textbf{NMI} \\
+\midrule
+K-Means vs. K-Medoids (PAM) & 2 & 0.7291 & 0.6850 \\
+K-Means vs. K-Medoids (PAM) & 3 & 0.4279 & 0.4759 \\
+K-Means vs. HAC (Ward) & 2 & 0.7267 & 0.6531 \\
+K-Means vs. HAC (Ward) & 3 & 0.5971 & 0.6133 \\
+K-Means vs. Spectral & 2 & 0.7765 & 0.7085 \\
+K-Means vs. GMM (Full) & 2 & 0.5205 & 0.4809 \\
+HAC (Ward) vs. Spectral & 2 & 0.8702 & 0.7802 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Caracterización de los Clústeres Territoriales Seleccionados}
+
+La partición tripartita de K-Means ($k = 3$) estructura el territorio electoral peruano en tres perfiles empíricos claramente diferenciados (Tabla~\ref{tab:perfiles}, Figuras~\ref{fig:espacio_latente} y \ref{fig:mapa}). Se aclara que las pruebas ANOVA ($F$, $p < 0.001$, calculadas mediante \texttt{scipy.stats.f\_oneway}) y Chi-cuadrado ($\chi^2 = 894.2$, $p < 0.001$, evaluada sobre la tabla de contingencia clúster vs. departamento con \texttt{scipy.stats.chi2\_contingency}) se reportan con fines descriptivos de la separación entre centroides:
+
+\begin{table*}[t]
+\centering
+\caption{Caracterización multivariada de los perfiles territoriales seleccionados (Esquema B, K-Means $k = 3$).}
+\label{tab:perfiles}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{} p{4.2cm} X X X c @{}}
+\toprule
+\textbf{Indicador Electoral / Estructural} & \textbf{Clúster 0: Hegemonía JPP} & \textbf{Clúster 1: Hiperfragmentación} & \textbf{Clúster 2: Competencia FP} & \textbf{Prueba Descriptiva ($F$ / $\chi^2$)} \\
+\midrule
+N.$^\circ$ de Distritos (\% Cobertura Nacional) & 672 distritos (35.56\,\%) & 604 distritos (31.96\,\%) & 614 distritos (32.49\,\%) & N/A (Conteo censal) \\
+Juntos por el Perú (media \%) & 47.70\,\% & 21.03\,\% & 13.61\,\% & $F = 1,842.5, p < 0.001$ \\
+Fuerza Popular (media \%) & 9.78\,\% & 10.95\,\% & 27.99\,\% & $F = 1,120.3, p < 0.001$ \\
+Partido Cívico Obras (media \%) & 12.06\,\% & 15.17\,\% & 8.86\,\% & $F = 345.8, p < 0.001$ \\
+Ahora Nación - AN (media \%) & 5.85\,\% & 12.60\,\% & 5.33\,\% & $F = 498.2, p < 0.001$ \\
+Renovación Popular (media \%) & 2.05\,\% & 3.77\,\% & 7.52\,\% & $F = 312.4, p < 0.001$ \\
+Otros Partidos Consolidados (media \%) & 20.62\,\% & 30.28\,\% & 30.83\,\% & $F = 467.1, p < 0.001$ \\
+Número Efectivo de Partidos (NEP) & 3.89 partidos & 8.07 partidos & 6.81 partidos & $F = 1,215.7, p < 0.001$ \\
+Margen de Victoria Distrital (MV) & 32.70 pp & 6.80 pp & 13.69 pp & $F = 1,089.4, p < 0.001$ \\
+Regiones con Mayor Presencia Distrital & Cajamarca (113), Ayacucho (82), Apurímac (73), Huancavelica (67), Huánuco (63) & Junín (84), Arequipa (81), Cusco (76), Áncash (72), Puno (72) & Lima (139), La Libertad (61), Áncash (54), Loreto (48), Piura (43) & $\chi^2 = 894.2, p < 0.001$ \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{itemize}
+    \item \textit{Clúster 0 (Hegemonía Andino-Rural, $n = 672$, 35.56\,\%):} Caracterizado por una marcada concentración del voto en JPP (47.70\,\%), bajo número efectivo de partidos ($\mathrm{NEP} = 3.89$) y un amplio margen de victoria (32.70 pp), localizado primordialmente en la sierra sur y centro andina (Cajamarca con 113 distritos, Ayacucho 82, Apurímac 73, Huancavelica 67 y Huánuco 63).
+    \item \textit{Clúster 1 (Hiperfragmentación y Dispersión, $n = 604$, 31.96\,\%):} Caracterizado por una competencia extraordinariamente cerrada (margen promedio de 6.80 pp, donde se registraron los empates técnicos), la mayor atomización nacional ($\mathrm{NEP} = 8.07$) y dispersión entre PCO, AN y fuerzas locales en ciudades intermedias y sierra central (Junín con 84 distritos, Arequipa 81, Cusco 76, Áncash 72 y Puno 72).
+    \item \textit{Clúster 2 (Competitividad Urbano-Costera, $n = 614$, 32.49\,\%):} Liderado por Fuerza Popular (27.99\,\%) con presencia de Renovación Popular (7.52\,\%) y competencia con JPP (13.61\,\%), registrando margen moderado (13.69 pp) y $\mathrm{NEP} = 6.81$, concentrado en la costa y macro-norte (Lima con 139 distritos, La Libertad 61, Áncash 54, Loreto 48 y Piura 43).
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\columnwidth, height=3.6cm, keepaspectratio]{figuras_laccei/fig3_espacio_latente.png}
+\caption{Espacio latente: (a) Proyección PCA 2D (65.9\,\% varianza explicada); (b) Firmas de centroides.}
+\label{fig:espacio_latente}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\columnwidth, height=5.2cm, keepaspectratio]{figuras_laccei/fig4_mapa_clusters.png}
+\caption{Mapa coroplético distrital de los clústeres territoriales en el Perú (1,832 distritos emparejados cartográficamente; 58 distritos de reciente creación analizados en el clustering pero sin geometría vectorial en la capa base).}
+\label{fig:mapa}
+\end{figure}
+
+\section{Discusión}
+
+Los hallazgos empíricos confirman la hipótesis de investigación formulada: las circunscripciones electorales del Perú no se agrupan en macrozonas geográficas homogéneas, sino en perfiles multivariados definidos por su estructura de competencia política, en sintonía con lo planteado por Encinas y Fuentes Diestra \cite{encinas2021}. Sin embargo, el presente estudio supera los antecedentes al incorporar simultáneamente a todas las fuerzas efectivas, el margen de victoria y el NEP en los 1,890 distritos, permitiendo descubrir el perfil de hiperfragmentación (Clúster 1) que los análisis basados exclusivamente en el ``partido ganador'' son incapaces de detectar.
+
+En el plano metodológico, los resultados validan el criterio de reducción y agregación propuesto por Díaz-Arguello \cite{diaz2025}: el filtrado de agrupaciones marginales y la inclusión de variables estructurales resolvieron la dispersión dimensional del Esquema A, elevando el coeficiente de Silhouette de 0.1409 a 0.2841 en $k = 2$ y 0.2650 en $k = 3$, y reduciendo Davies-Bouldin a 1.3214 y 1.4868, respectivamente. Asimismo, la concordancia observada entre K-Means y HAC Ward ($\mathrm{ARI} = 0.5971$ en $k = 3$ y $\mathrm{ARI} = 0.7267$ en $k = 2$) respalda la validez de la partición seleccionada, en concordancia con trabajos recientes en ingeniería y analítica electoral regional \cite{rebolledo2025, jacintho2021}.
+
+Asimismo, aunque Spectral Clustering en $k = 3$ alcanzó una silueta competitiva ($S = 0.2651$) y el menor índice de Davies-Bouldin ($DB = 1.1231$), K-Means fue adoptado formalmente debido a su mayor solidez de dispersión global (Calinski-Harabasz de 702.34 frente a 562.70 de Spectral), la interpretabilidad analítica directa de sus centroides y el adecuado balance de sus tamaños muestrales, evitando la conformación de clústeres hiperreducidos aislados (como el grupo residual de 72 distritos producido por el enfoque espectral).
+
+Cabe precisar el alcance inferencial del estudio: las variables describen circunscripciones, no votantes. Las tipologías obtenidas caracterizan arreglos agregados del sufragio y nada afirman sobre las motivaciones de electores concretos, lo que blinda la interpretación contra la falacia ecológica advertida por Zacharías et al. \cite{zacharias2015}. En el plano tecnológico, el pipeline estructurado bajo CRISP-DM resolvió las divergencias de UBIGEO y garantiza un flujo de software reproducible para futuros comicios.
+
+\section{Conclusiones}
+
+\begin{enumerate}
+    \item Se estructuró y depuró una matriz unificada para los 1,890 distritos electorales del Perú mediante la homologación determinista entre los estándares UBIGEO del INEI y RENIEC/ONPE. La ingeniería de características permitió controlar el ruido dimensional de las 35 fórmulas crudas, elevando el coeficiente de Silhouette de 0.1409 (Línea Base en $k = 2$) a 0.2841 en $k = 2$ y 0.2650 en $k = 3$, reduciendo Davies-Bouldin a 1.3214 ($k = 2$) y 1.4868 ($k = 3$), y cuadruplicando Calinski-Harabasz (824.39 en $k = 2$ y 702.34 en $k = 3$).
+    \item La comparación multimodelo demostró alta estabilidad geométrica en la partición binaria ($\mathrm{ARI} > 0.72$ entre K-Means, PAM y HAC Ward) y una concordancia moderada-alta en la partición tripartita seleccionada ($\mathrm{ARI} = 0.5971$ y $\mathrm{NMI} = 0.6133$ entre K-Means y HAC Ward), confirmando que K-Means ofrece el balance óptimo entre parsimonia computacional, interpretabilidad sustantiva y cohesión intragrupal.
+    \item Se identificaron y caracterizaron tres tipologías territoriales nítidas en la primera vuelta presidencial 2026: Hegemonía Andino-Rural (JPP 47.70\,\%, MV 32.70 pp, $n = 672$), Hiperfragmentación de Centro y Ciudades Intermedias (NEP = 8.07, MV 6.80 pp, $n = 604$) y Competitividad Urbano-Costera (FP 27.99\,\%, MV 13.69 pp, $n = 614$), documentando exhaustivamente la resolución algorítmica de los empates distritales a 0.000 pp frente a las resoluciones institucionales de la ONPE y los JEE.
+\end{enumerate}
+
+\section{Limitaciones}
+
+Se reconocen las siguientes limitaciones metodológicas: 1) el uso de datos agregados distritales impide inferir decisiones individuales de los votantes (falacia ecológica); 2) el análisis trata a cada circunscripción como una unidad sin ponderar por el padrón de electores hábiles; 3) 58 distritos procesados en el agrupamiento matemático no contaron con geometría vectorial en la capa GeoJSON simplificada empleada; 4) la existencia de fronteras distritales difusas refleja un solapamiento territorial continuo; 5) el corte transversal sobre una única elección no evalúa la volatilidad temporal longitudinal; y 6) no se incorporaron matrices de contigüidad espacial formal en la función objetivo del clustering.
+
+\section*{Disponibilidad de Datos y Código}
+
+Con el propósito de favorecer la reproducibilidad computacional y la auditoría analítica independiente, el código fuente completo en Python, los scripts de ejecución, la matriz distrital depurada ($N = 1,890$) y los archivos de resultados numéricos y métricas de validación (\texttt{resultados\_paper\_laccei\_2026.json}) se encuentran disponibles en acceso abierto en el repositorio público de GitHub: \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}. El pipeline fue ejecutado en Python 3.11 sobre scikit-learn 1.4 \cite{pedregosa2011}, pandas 2.2, numpy 1.26 y scipy 1.12, utilizando semilla pseudoaleatoria fija (\texttt{random\_state = 42}) y parámetros deterministas de inicialización (\texttt{n\_init = 10}, \texttt{k-means++}).
+
+\newpage
+
+\begin{thebibliography}{00}
+\footnotesize
+\setlength{\itemsep}{1.2pt plus 0.4pt minus 0.4pt}
+\setlength{\parskip}{0pt}
+
+\bibitem{idea2024} International IDEA, ``Americas --- January--June 2024,'' Democracy Tracker, corte al 30 de junio de 2024. [En línea]. Disponible: \url{https://www.idea.int/democracytracker/region/americas}
+
+\bibitem{latinobarometro2024} Corporación Latinobarómetro, ``Informe Latinobarómetro 2024,'' Santiago, Chile, sección 4.11.6, 2024. [En línea]. Disponible: \url{https://www.latinobarometro.org/documents/LAT2024/latinobarometro-informe-2024.pdf}
+
+\bibitem{sulmont2018} D. Sulmont, ``?Existe el voto programático en elecciones con un sistema de partidos políticos débil? Un análisis de las elecciones presidenciales peruanas,'' \textit{Revista de Ciencia Política}, vol. 38, no. 3, pp. 429--457, 2018. doi: \href{https://doi.org/10.4067/S0718-090X2018000300429}{10.4067/S0718-090X2018000300429}
+
+\bibitem{levitsky2003} S. Levitsky and M. S. Cameron, ``Democracy without Parties? Political Parties and Regime Change in Fujimori's Peru,'' \textit{Latin American Politics and Society}, vol. 45, no. 3, pp. 1--33, 2003. doi: \href{https://doi.org/10.1111/j.1548-2456.2003.tb00248.x}{10.1111/j.1548-2456.2003.tb00248.x}
+
+\bibitem{quintanilla2020} A. Quintanilla Ponce, ``Algunas constantes en la conducta electoral de los pobladores rurales del Perú,'' \textit{Revista Elecciones}, vol. 19, no. 20, pp. 297--326, 2020. doi: \href{https://doi.org/10.53557/Elecciones.2020.v19n20.11}{10.53557/Elecciones.2020.v19n20.11}
+
+\bibitem{carranza2022} N. Carranza Pinedo, ``Elecciones Internas Perú 2022: abriendo la caja negra de los datos electorales,'' \textit{Revista Elecciones}, vol. 21, no. 23, pp. 11--38, 2022. doi: \href{https://doi.org/10.53557/Elecciones.2022.v21n23.11}{10.53557/Elecciones.2022.v21n23.11}
+
+\bibitem{encinas2021} D. Encinas y A. Fuentes Diestra, ``La geografía política de las Elecciones Presidenciales de 2021 en Perú,'' \textit{Revista Elecciones}, vol. 20, no. 22, pp. 231--282, 2021. doi: \href{https://doi.org/10.53557/Elecciones.2021.v20n22.07}{10.53557/Elecciones.2021.v20n22.07}
+
+\bibitem{jne2025_inscripcion} Jurado Nacional de Elecciones (JNE), ``JNE confirma que 36 fórmulas presidenciales solicitaron su inscripción,'' Nota de Prensa, 24 de diciembre de 2025. [En línea]. Disponible: \url{https://portal.jne.gob.pe/portal/Pagina/Nota/19542}
+
+\bibitem{jne2026_compendio} Jurado Nacional de Elecciones (JNE), ``Compendio Normativo y Registro Oficial del Proceso de Elecciones Generales 2026,'' Portal Institucional del JNE, Lima, Perú, 2026. [En línea]. Disponible: \url{https://portal.jne.gob.pe/portal/Pagina/Ver/979/page/Elecciones-Generales-2026}
+
+\bibitem{jee2026_pte} Jurado Electoral Especial de Lima Centro 1, ``Resolución N.$^\circ$ 01246-2026-JEE-LIC1/JNE: Declarar sin efecto la fórmula presidencial del Partido de los Trabajadores y Emprendedores (PTE-Perú) y disponer cómputo de votos como nulos,'' \textit{Diario Oficial El Peruano}, Lima, Perú, 2026. [En línea]. Disponible: \url{https://busquedas.elperuano.pe/normaslegales/resolucion-n-01246-2026-jee-lic1jne/}
+
+\bibitem{onpe2026_resultados_web} Oficina Nacional de Procesos Electorales (ONPE), ``Elecciones Generales 2026: Resultados en tiempo real y cómputo distrital oficial de la primera vuelta presidencial,'' Plataforma Oficial de Cómputo Electoral EG 2026, Lima, Perú, 2026. [En línea]. Disponible: \url{https://eg2026.onpe.gob.pe/electores-y-miembros-de-mesa/resultados-en-tiempo-real/}
+
+\bibitem{onpe2026_analitica1} Oficina Nacional de Procesos Electorales (ONPE), ``Analítica Electoral no. 1: Participación electoral EG 2026: ciudadanía, territorios y miembros de mesa,'' Lima, Perú, 2026. [En línea]. Disponible: \url{https://www.gob.pe/institucion/onpe/informes-publicaciones/8325351-analitica-electoral-1-participacion-electoral-eg-2026-ciudadania-territorios-y-miembros-de-mesa}
+
+\bibitem{onpe2026_noticia1427006} Oficina Nacional de Procesos Electorales (ONPE), ``ONPE publica análisis de los resultados de las Elecciones Generales 2026: votos, escaños y perfil de autoridades (Analítica Electoral N.$^\circ$ 3),'' Nota Institucional y Boletín Técnico, Lima, Perú, agosto de 2026. [En línea]. Disponible: \url{https://www.gob.pe/institucion/onpe/noticias/1427006-onpe-publica-analisis-de-los-resultados-de-las-elecciones-generales-2026}
+
+\bibitem{zacharias2015} R. Zacharías, D. Sulmont, y C. Garibotti, ``Elecciones presidenciales Perú 2011: factores contextuales y voto de proximidad,'' \textit{Revista Latinoamericana de Opinión Pública}, vol. 5, pp. 79--112, 2015. doi: \href{https://doi.org/10.14201/rlop.22310}{10.14201/rlop.22310}
+
+\bibitem{rebolledo2025} C. Rebolledo-Vega, J. Reinoso, E. Cornejo, D. Obreque, y R. Baesler, ``Electoral Districts in Chile: Optimizing Socio-Economic Homogeneity and Geographic Contiguity,'' \textit{Systems}, vol. 13, no. 2, p. 85, 2025. doi: \href{https://doi.org/10.3390/systems13020085}{10.3390/systems13020085}
+
+\bibitem{jacintho2021} M. Jacintho, R. C. G. da Silva, P. J. S. Parmezan, y G. E. A. P. A. Batista, ``Analysing Spatio-Temporal Voting Patterns in the Brazilian 2020 Municipal Elections using Cluster Analysis and Trajectory Mining,'' \textit{Journal of Information and Data Management}, vol. 12, no. 1, pp. 45--60, 2021. doi: \href{https://doi.org/10.5753/jidm.2021.1932}{10.5753/jidm.2021.1932}
+
+\bibitem{silva2022} F. Silva, R. Santos, y M. Silva, ``Do Leme a Santa Cruz: a territorialização eleitoral de Jair Bolsonaro e Marcelo Freixo na cidade do Rio de Janeiro,'' \textit{Opinião Pública}, vol. 28, no. 2, pp. 345--372, 2022. doi: \href{https://doi.org/10.1590/1807-0191202228192}{10.1590/1807-0191202228192}
+
+\bibitem{diaz2025} J. Díaz-Arguello, ``Clusterización electoral de los municipios de Antioquia en los comicios legislativos 2022,'' \textit{Revista Politécnica}, vol. 21, no. 42, pp. 88--101, 2025. doi: \href{https://doi.org/10.33571/rpolitec.v21n42a6}{10.33571/rpolitec.v21n42a6}
+
+\bibitem{ovalle2024} C. Ovalle, O. Santillán Aching, A. Temoche Lopez, y J. A. Bojorquez Segura, ``Comparison of Peruvian coffee varieties applying near infrared spectroscopy (NIRS) and machine learning,'' in \textit{Proc. 13th Int. Conf. Comput. Pattern Recognition (ICCPR 2024)}, Tianjin, China, 2024, pp. 240--246. doi: \href{https://doi.org/10.1145/3704323.3704367}{10.1145/3704323.3704367}
+
+\bibitem{ovalle2026_laccei} C. Ovalle, E. Sánchez Puche, W. Cerron Valverde, y O. Santillán Aching, ``Predictive model to prevent injuries in athletes using Machine Learning and sensitivity analysis,'' in \textit{Proc. 24th LACCEI Int. Multi-Conf. Eng., Educ. Technol.}, Santiago, Chile, 2026. doi: \href{https://doi.org/10.18687/LACCEI2026.1.1.412}{10.18687/LACCEI2026.1.1.412}
+
+\bibitem{inei2026_directorio} Instituto Nacional de Estadística e Informática (INEI), ``Directorio Nacional de Centros Poblados --- Códigos UBIGEO 2026,'' Infraestructura de Datos Espaciales, Lima, Perú, 2026. [En línea]. Disponible: \url{https://ide.inei.gob.pe/catalogo-descargas/}
+
+\bibitem{chapman2000} P. Chapman, J. Clinton, R. Kerber, T. Khabaza, T. Reinartz, C. Shearer, y R. Wirth, ``CRISP-DM 1.0: Step-by-step data mining guide,'' SPSS Inc., Chicago, IL, 2000. [En línea]. Disponible: \url{ftp://ftp.software.ibm.com/software/analytics/spss/support/Modeler/CRISP-DM/CRISP-DM\%201.0.pdf}
+
+\bibitem{schroer2021} C. Schröer, F. Kruse, y J. M. Gómez, ``A Systematic Literature Review on Applying CRISP-DM Process Model,'' \textit{Procedia Computer Science}, vol. 181, pp. 526--534, 2021. doi: \href{https://doi.org/10.1016/j.procs.2021.01.199}{10.1016/j.procs.2021.01.199}
+
+\bibitem{rokach2005} L. Rokach y O. Maimon, ``Clustering Methods,'' in \textit{Data Mining and Knowledge Discovery Handbook}, O. Maimon y L. Rokach, Eds. Boston, MA: Springer, 2005, pp. 321--352. doi: \href{https://doi.org/10.1007/0-387-25465-X_15}{10.1007/0-387-25465-X\_15}
+
+\bibitem{hartigan1979} J. A. Hartigan y M. A. Wong, ``Algorithm AS 136: A K-Means Clustering Algorithm,'' \textit{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, vol. 28, no. 1, pp. 100--108, 1979. doi: \href{https://doi.org/10.2307/2346830}{10.2307/2346830}
+
+\bibitem{ward1963} J. H. Ward, ``Hierarchical Grouping to Optimize an Objective Function,'' \textit{Journal of the American Statistical Association}, vol. 58, no. 301, pp. 236--244, 1963. doi: \href{https://doi.org/10.1080/01621459.1963.10500845}{10.1080/01621459.1963.10500845}
+
+\bibitem{dempster1977} A. P. Dempster, N. M. Laird, y D. B. Rubin, ``Maximum Likelihood from Incomplete Data via the EM Algorithm,'' \textit{Journal of the Royal Statistical Society. Series B (Methodological)}, vol. 39, no. 1, pp. 1--38, 1977. doi: \href{https://doi.org/10.1111/j.2517-6161.1977.tb01600.x}{10.1111/j.2517-6161.1977.tb01600.x}
+
+\bibitem{rousseeuw1987} P. J. Rousseeuw, ``Silhouettes: A graphical aid to the interpretation and validation of cluster analysis,'' \textit{Journal of Computational and Applied Mathematics}, vol. 20, pp. 53--65, 1987. doi: \href{https://doi.org/10.1016/0377-0427(87)90125-7}{10.1016/0377-0427(87)90125-7}
+
+\bibitem{calinski1974} T. Cali\'nski y J. Harabasz, ``A dendrite method for cluster analysis,'' \textit{Communications in Statistics}, vol. 3, no. 1, pp. 1--27, 1974. doi: \href{https://doi.org/10.1080/03610927408827101}{10.1080/03610927408827101}
+
+\bibitem{davies1979} D. L. Davies y D. W. Bouldin, ``A Cluster Separation Measure,'' \textit{IEEE Transactions on Pattern Analysis and Machine Intelligence}, vol. PAMI-1, no. 2, pp. 224--227, 1979. doi: \href{https://doi.org/10.1109/TPAMI.1979.4766909}{10.1109/TPAMI.1979.4766909}
+
+\bibitem{greenacre2021} M. Greenacre, ``Compositional Data Analysis,'' \textit{Annual Review of Statistics and Its Application}, vol. 8, pp. 271--299, 2021. doi: \href{https://doi.org/10.1146/annurev-statistics-042720-124436}{10.1146/annurev-statistics-042720-124436}
+
+\bibitem{pedregosa2011} F. Pedregosa et al., ``Scikit-learn: Machine Learning in Python,'' \textit{Journal of Machine Learning Research}, vol. 12, pp. 2825--2830, 2011. [En línea]. Disponible: \url{https://jmlr.org/papers/v12/pedregosa11a.html}
+
+\bibitem{eladio2020} J. Eladio, ``Límites distritales del Perú en formato GeoJSON simplificado,'' Repositorio juaneladio/peru-geojson, 2020. [En línea]. Disponible: \url{https://github.com/juaneladio/peru-geojson}
+
+\end{thebibliography}
+
+\end{document}

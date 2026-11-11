@@ -25,6 +25,8 @@ Abarca la totalidad de las **1,890 circunscripciones distritales** del país a p
 ├── peru_distrital_simple.geojson       # Capa vectorial cartográfica de distritos del Perú
 ├── pipeline_electoral_peru_2026.py     # Script maestro del pipeline de clustering y evaluación
 ├── resultados_paper_laccei_2026.json   # Métricas y resultados numéricos del benchmarking
+├── Paper_LACCEI_2026.pdf               # Manuscrito final en formato LACCEI / IEEE (8 páginas)
+├── Paper_LACCEI_2026.tex               # Código fuente completo en LaTeX
 ├── figuras/                            # Figuras en alta resolución generadas por el pipeline
 ├── requirements.txt                    # Dependencias de Python
 ├── LICENSE                             # Licencia de código abierto MIT
