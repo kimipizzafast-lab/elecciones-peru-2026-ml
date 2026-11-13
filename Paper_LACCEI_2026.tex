@@ -147,7 +147,7 @@ El pipeline computacional desarrollado implementó un módulo de reconciliación
 
 \textbf{Diferenciación entre Cobertura Analítica y Cobertura Cartográfica:} Es fundamental distinguir entre:
 \begin{itemize}
-    \item \textit{Cobertura Analítica (Universo del Estudio):} Abarca los 1,890 distritos oficiales (100.00\,\%). Todos ellos fueron normalizados, clusterizados por los cinco algoritmos y empleados en el cálculo de métricas de dispersión, centroides, pruebas ANOVA y análisis de perfiles.
+    \item \textit{Cobertura Analítica (Universo del Estudio):} Abarca los 1,890 distritos oficiales (100.00\,\%). Todos ellos fueron normalizados, clusterizados por los cinco algoritmos y empleados en el cálculo de métricas de dispersión, centroides y análisis de perfiles.
     \item \textit{Cobertura Cartográfica (Visualización Espacial):} Comprende 1,832 distritos emparejados (96.93\,\%) en la capa GeoJSON simplificada de acceso público (\texttt{peru\_distrital\_simple.geojson} \cite{eladio2020}). La brecha de 58 distritos (3.07\,\%) corresponde a circunscripciones de reciente creación legal por el Congreso de la República (creadas entre 2014 y 2021, entre ellas: Mi Perú en el Callao; José María Arguedas en Apurímac; Canayre, Uchuraccay, Pucacolpa, Chaca, Putis, Samugari, Anchihuay, Oronccoy, Unión Progreso, Río Magdalena, Ninabamba y Patibamba en Ayacucho/VRAEM; así como distritos en Huánuco, Loreto y San Martín), cuyos límites no están vectorizados en dicha geometría simplificada. Estos 58 distritos participaron plenamente en el modelado de Machine Learning y únicamente se omitieron del renderizado coroplético bidimensional.
 \end{itemize}
 
@@ -238,20 +238,27 @@ Margen Victoria Distrital (MV) & 18.24 pp & 14.83 pp & [0.00 -- 72.39] \\
 \end{tabularx}
 \end{table}
 
-\textbf{Demostración y Conciliación de Cifras de Victorias con la ONPE:} La publicación oficial de la ONPE en su reporte institucional \textit{Analítica Electoral N.$^\circ$ 3} \cite{onpe2026_noticia1427006} y su plataforma oficial \cite{onpe2026_resultados_web} reporta que JPP alcanzó el primer lugar en 1,108 distritos y FP en 583 distritos. La diferencia de exactamente un distrito en JPP (1,107 en nuestro conteo algorítmico frente a 1,108 oficial de la ONPE; coincidencia del 99.95\,\%) se explica detalladamente mediante la auditoría de empates a nivel de microdatos:
+\textbf{Conciliación de Victorias con la ONPE y Empates por Redondeo:} La publicación oficial de la ONPE \textit{Analítica Electoral N.$^\circ$ 3} \cite{onpe2026_noticia1427006} y su portal \cite{onpe2026_resultados_web} reportan 1,108 distritos ganados por JPP y 583 por FP. La diferencia de un distrito en JPP (1,107 en nuestro conteo algorítmico frente a 1,108 oficial; coincidencia del 99.95\,\%) se origina en la resolución de empates por redondeo en la matriz abierta de porcentajes, la cual reporta cuotas redondeadas a tres decimales sin incluir votos nominales enteros ni decimales sin redondear. Se detectaron cinco distritos con igualdad al tercer decimal (margen 0.000 pp; Tabla~\ref{tab:empates}):
 
-Se detectaron exactamente cinco circunscripciones con empate porcentual idéntico a tres cifras decimales (margen de 0.000 pp):
-\begin{enumerate}
-    \item \textit{Limabamba} (Amazonas, RENIEC: 010505, INEI: 010605): FP (15.495\,\%) vs. RP (15.495\,\%).
-    \item \textit{Chacas} (Áncash, RENIEC: 021801, INEI: 020401): JPP (18.951\,\%) vs. AN (18.951\,\%).
-    \item \textit{Ingenio} (Junín, RENIEC: 110121, INEI: 120122): JPP (18.847\,\%) vs. FP (18.847\,\%).
-    \item \textit{Padre Márquez} (Loreto, RENIEC: 150503, INEI: 160603): JPP (28.455\,\%) vs. FP (28.455\,\%).
-    \item \textit{Ajoyani} (Puno, RENIEC: 200302, INEI: 210302): JPP (25.495\,\%) vs. PCO (25.495\,\%).
-\end{enumerate}
+\begin{table}[htbp]
+\centering
+\caption{Distritos con empate al tercer decimal en la matriz exportada.}
+\label{tab:empates}
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{} l c l l @{}}
+\toprule
+\textbf{Distrito (Región)} & \textbf{UBIGEO R/I} & \textbf{Empate (3 dec.)} & \textbf{\texttt{idxmax()}} \\
+\midrule
+Limabamba (Amaz.) & 010505/010605 & FP / RP (15.495\,\%) & FP \\
+Chacas (Áncash) & 021801/020401 & JPP / AN (18.951\,\%) & JPP \\
+Ingenio (Junín) & 110121/120122 & FP / JPP (18.847\,\%) & FP \\
+Padre Márquez (Lor.) & 150503/160603 & FP / JPP (28.455\,\%) & FP \\
+Ajoyani (Puno) & 200302/210302 & JPP / PCO (25.495\,\%) & JPP \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-El procedimiento computacional de indexación tabular resuelve los empates en punto flotante por orden de columna léxica (\texttt{idxmax()}), asignando la primera ubicación a favor de FP en Ingenio y Padre Márquez (al preceder alfabéticamente a JPP), lo que arroja 1,107 distritos para JPP y 583 para FP. Por el contrario, la ONPE realiza el cómputo oficial a partir de votos enteros absolutos en actas y, ante empates estrictos de sufragios nominales, la Ley Orgánica de Elecciones (Ley N.$^\circ$ 26859, Art. 275) dispone la resolución mediante sorteo público ante el Jurado Electoral Especial (JEE) correspondiente. De este modo, la ONPE proclamó 1,108 distritos para JPP y 583 para FP \cite{onpe2026_noticia1427006}. 
-
-\textit{Relevancia metodológica:} Se subraya que los modelos de Machine Learning no supervisado procesan matrices continuas compuestas por las cuotas de sufragio de todos los partidos, el margen y el NEP; en ningún momento emplean la etiqueta discreta del ``partido ganador'' como variable de entrada. Por consiguiente, esta discrepancia institucional de una sola unidad en la etiqueta nominal no altera en absoluto las fronteras de clúster, centroides ni métricas de cohesión matemática.
+Dado que \texttt{idxmax()} resuelve igualdades en punto flotante seleccionando la primera columna según el orden posicional de la matriz (donde \texttt{PCT\_FUERZA\_POPULAR} precede a \texttt{PCT\_JUNTOS\_POR\_EL\_PERÚ}, seguido de PCO, RP y AN), asigna FP en Ingenio y Padre Márquez, totalizando 1,107 victorias para JPP y 583 para FP. En contraste, la ONPE determina el ganador oficial (1,108 JPP / 583 FP) sobre votos enteros nominales en actas sin redondeo (aplicando sorteo público ante el JEE según Ley N.$^\circ$ 26859, Art. 275, únicamente ante empates nominales reales). Se subraya que los algoritmos no supervisados procesan matrices continuas de porcentajes, NEP y MV sin utilizar la etiqueta discreta del ganador, por lo que esta diferencia nominal no altera los clústeres ni métricas.
 
 \subsection{Comparación Multimodelo y Rendimiento según Esquema de Datos}
 
@@ -326,7 +333,7 @@ HAC (Ward) vs. Spectral & 2 & 0.8702 & 0.7802 \\
 
 \subsection{Caracterización de los Clústeres Territoriales Seleccionados}
 
-La partición tripartita de K-Means ($k = 3$) estructura el territorio electoral peruano en tres perfiles empíricos claramente diferenciados (Tabla~\ref{tab:perfiles}, Figuras~\ref{fig:espacio_latente} y \ref{fig:mapa}). Se aclara que las pruebas ANOVA ($F$, $p < 0.001$, calculadas mediante \texttt{scipy.stats.f\_oneway}) y Chi-cuadrado ($\chi^2 = 894.2$, $p < 0.001$, evaluada sobre la tabla de contingencia clúster vs. departamento con \texttt{scipy.stats.chi2\_contingency}) se reportan con fines descriptivos de la separación entre centroides:
+La partición tripartita de K-Means ($k = 3$) estructura el territorio electoral peruano en tres perfiles empíricos diferenciados (Tabla~\ref{tab:perfiles}, Figuras~\ref{fig:espacio_latente} y \ref{fig:mapa}). Para evitar inferencia circular (\textit{double-dipping}) sobre las mismas variables empleadas en la formación de los clústeres, no se reportan valores $p$ de pruebas paramétricas ANOVA o Chi-cuadrado, contrastando únicamente los centroides frente a las medias globales del universo distrital:
 
 \begin{table*}[t]
 \centering
@@ -335,25 +342,25 @@ La partición tripartita de K-Means ($k = 3$) estructura el territorio electoral
 \footnotesize
 \begin{tabularx}{\textwidth}{@{} p{4.2cm} X X X c @{}}
 \toprule
-\textbf{Indicador Electoral / Estructural} & \textbf{Clúster 0: Hegemonía JPP} & \textbf{Clúster 1: Hiperfragmentación} & \textbf{Clúster 2: Competencia FP} & \textbf{Prueba Descriptiva ($F$ / $\chi^2$)} \\
+\textbf{Indicador Electoral / Estructural} & \textbf{Clúster 0: Hegemonía JPP} & \textbf{Clúster 1: Hiperfragmentación} & \textbf{Clúster 2: Competencia FP} & \textbf{Media Global ($N = 1,890$)} \\
 \midrule
-N.$^\circ$ de Distritos (\% Cobertura Nacional) & 672 distritos (35.56\,\%) & 604 distritos (31.96\,\%) & 614 distritos (32.49\,\%) & N/A (Conteo censal) \\
-Juntos por el Perú (media \%) & 47.70\,\% & 21.03\,\% & 13.61\,\% & $F = 1,842.5, p < 0.001$ \\
-Fuerza Popular (media \%) & 9.78\,\% & 10.95\,\% & 27.99\,\% & $F = 1,120.3, p < 0.001$ \\
-Partido Cívico Obras (media \%) & 12.06\,\% & 15.17\,\% & 8.86\,\% & $F = 345.8, p < 0.001$ \\
-Ahora Nación - AN (media \%) & 5.85\,\% & 12.60\,\% & 5.33\,\% & $F = 498.2, p < 0.001$ \\
-Renovación Popular (media \%) & 2.05\,\% & 3.77\,\% & 7.52\,\% & $F = 312.4, p < 0.001$ \\
-Otros Partidos Consolidados (media \%) & 20.62\,\% & 30.28\,\% & 30.83\,\% & $F = 467.1, p < 0.001$ \\
-Número Efectivo de Partidos (NEP) & 3.89 partidos & 8.07 partidos & 6.81 partidos & $F = 1,215.7, p < 0.001$ \\
-Margen de Victoria Distrital (MV) & 32.70 pp & 6.80 pp & 13.69 pp & $F = 1,089.4, p < 0.001$ \\
-Regiones con Mayor Presencia Distrital & Cajamarca (113), Ayacucho (82), Apurímac (73), Huancavelica (67), Huánuco (63) & Junín (84), Arequipa (81), Cusco (76), Áncash (72), Puno (72) & Lima (139), La Libertad (61), Áncash (54), Loreto (48), Piura (43) & $\chi^2 = 894.2, p < 0.001$ \\
+N.$^\circ$ de Distritos (\% Cobertura Nacional) & 672 distritos (35.56\,\%) & 604 distritos (31.96\,\%) & 614 distritos (32.49\,\%) & 1,890 (100.00\,\%) \\
+Juntos por el Perú (media \%) & 47.70\,\% & 21.03\,\% & 13.61\,\% & 28.10\,\% \\
+Fuerza Popular (media \%) & 9.78\,\% & 10.95\,\% & 27.99\,\% & 16.07\,\% \\
+Partido Cívico Obras (media \%) & 12.06\,\% & 15.17\,\% & 8.86\,\% & 12.01\,\% \\
+Ahora Nación - AN (media \%) & 5.85\,\% & 12.60\,\% & 5.33\,\% & 7.84\,\% \\
+Renovación Popular (media \%) & 2.05\,\% & 3.77\,\% & 7.52\,\% & 4.38\,\% \\
+Otros Partidos Consolidados (media \%) & 20.62\,\% & 30.28\,\% & 30.83\,\% & 27.02\,\% \\
+Número Efectivo de Partidos (NEP) & 3.89 partidos & 8.07 partidos & 6.81 partidos & 6.18 partidos \\
+Margen de Victoria Distrital (MV) & 32.70 pp & 6.80 pp & 13.69 pp & 18.24 pp \\
+Regiones con Mayor Presencia Distrital & Cajamarca (113), Ayacucho (82), Apurímac (73), Huancavelica (67), Huánuco (63) & Junín (84), Arequipa (81), Cusco (76), Áncash (72), Puno (72) & Lima (139), La Libertad (61), Áncash (54), Loreto (48), Piura (43) & 25 circ. regionales \\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
 \begin{itemize}
     \item \textit{Clúster 0 (Hegemonía Andino-Rural, $n = 672$, 35.56\,\%):} Caracterizado por una marcada concentración del voto en JPP (47.70\,\%), bajo número efectivo de partidos ($\mathrm{NEP} = 3.89$) y un amplio margen de victoria (32.70 pp), localizado primordialmente en la sierra sur y centro andina (Cajamarca con 113 distritos, Ayacucho 82, Apurímac 73, Huancavelica 67 y Huánuco 63).
-    \item \textit{Clúster 1 (Hiperfragmentación y Dispersión, $n = 604$, 31.96\,\%):} Caracterizado por una competencia extraordinariamente cerrada (margen promedio de 6.80 pp, donde se registraron los empates técnicos), la mayor atomización nacional ($\mathrm{NEP} = 8.07$) y dispersión entre PCO, AN y fuerzas locales en ciudades intermedias y sierra central (Junín con 84 distritos, Arequipa 81, Cusco 76, Áncash 72 y Puno 72).
+    \item \textit{Clúster 1 (Hiperfragmentación y Dispersión, $n = 604$, 31.96\,\%):} Caracterizado por una competencia extraordinariamente cerrada (margen promedio de 6.80 pp, donde se registraron los empates por redondeo a tres decimales), la mayor atomización nacional ($\mathrm{NEP} = 8.07$) y dispersión entre PCO, AN y fuerzas locales en ciudades intermedias y sierra central (Junín con 84 distritos, Arequipa 81, Cusco 76, Áncash 72 y Puno 72).
     \item \textit{Clúster 2 (Competitividad Urbano-Costera, $n = 614$, 32.49\,\%):} Liderado por Fuerza Popular (27.99\,\%) con presencia de Renovación Popular (7.52\,\%) y competencia con JPP (13.61\,\%), registrando margen moderado (13.69 pp) y $\mathrm{NEP} = 6.81$, concentrado en la costa y macro-norte (Lima con 139 distritos, La Libertad 61, Áncash 54, Loreto 48 y Piura 43).
 \end{itemize}
 
@@ -395,7 +402,7 @@ Se reconocen las siguientes limitaciones metodológicas: 1) el uso de datos agre
 
 \section*{Disponibilidad de Datos y Código}
 
-Con el propósito de favorecer la reproducibilidad computacional y la auditoría analítica independiente, el código fuente completo en Python, los scripts de ejecución, la matriz distrital depurada ($N = 1,890$) y los archivos de resultados numéricos y métricas de validación (\texttt{resultados\_paper\_laccei\_2026.json}) se encuentran disponibles en acceso abierto en el repositorio público de GitHub: \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}. El pipeline fue ejecutado en Python 3.11 sobre scikit-learn 1.4 \cite{pedregosa2011}, pandas 2.2, numpy 1.26 y scipy 1.12, utilizando semilla pseudoaleatoria fija (\texttt{random\_state = 42}) y parámetros deterministas de inicialización (\texttt{n\_init = 10}, \texttt{k-means++}).
+Con el propósito de facilitar la transparencia metodológica y la verificación independiente, el código fuente en Python (\texttt{pipeline\_electoral\_peru\_2026.py}), las instrucciones de ejecución (\texttt{README.md}), la matriz porcentual distrital depurada (\texttt{dataset\_onpe\_1890\_distritos.xlsx}, $N = 1,890$) y el archivo de métricas (\texttt{resultados\_paper\_laccei\_2026.json}) se encuentran alojados públicamente sin requerir autenticación en GitHub: \url{https://github.com/kimipizzafast-lab/elecciones-peru-2026-ml}. El pipeline fue ejecutado en Python 3.11 sobre scikit-learn 1.4 \cite{pedregosa2011}, pandas 2.2, numpy 1.26 y scipy 1.12, utilizando semilla pseudoaleatoria fija (\texttt{random\_state = 42}) y parámetros deterministas (\texttt{n\_init = 10}, \texttt{k-means++}).
 
 \newpage
 
@@ -439,7 +446,7 @@ Con el propósito de favorecer la reproducibilidad computacional y la auditoría
 
 \bibitem{silva2022} F. Silva, R. Santos, y M. Silva, ``Do Leme a Santa Cruz: a territorialização eleitoral de Jair Bolsonaro e Marcelo Freixo na cidade do Rio de Janeiro,'' \textit{Opinião Pública}, vol. 28, no. 2, pp. 345--372, 2022. doi: \href{https://doi.org/10.1590/1807-0191202228192}{10.1590/1807-0191202228192}
 
-\bibitem{diaz2025} J. Díaz-Arguello, ``Clusterización electoral de los municipios de Antioquia en los comicios legislativos 2022,'' \textit{Revista Politécnica}, vol. 21, no. 42, pp. 88--101, 2025. doi: \href{https://doi.org/10.33571/rpolitec.v21n42a6}{10.33571/rpolitec.v21n42a6}
+\bibitem{diaz2025} J. Díaz-Arguello, ``Clusterización electoral de los municipios de Antioquia mediante algoritmo de clasificación no supervisada K-Means,'' \textit{Revista Politécnica}, vol. 21, no. 42, pp. 88--101, 2025. doi: \href{https://doi.org/10.33571/rpolitec.v21n42a6}{10.33571/rpolitec.v21n42a6}
 
 \bibitem{ovalle2024} C. Ovalle, O. Santillán Aching, A. Temoche Lopez, y J. A. Bojorquez Segura, ``Comparison of Peruvian coffee varieties applying near infrared spectroscopy (NIRS) and machine learning,'' in \textit{Proc. 13th Int. Conf. Comput. Pattern Recognition (ICCPR 2024)}, Tianjin, China, 2024, pp. 240--246. doi: \href{https://doi.org/10.1145/3704323.3704367}{10.1145/3704323.3704367}
 
